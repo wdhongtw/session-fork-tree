@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Session Fork Tree</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Top Header & Controls -->
+    <header class="top-header">
+      <div class="brand-group">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="6" y1="3" x2="6" y2="15"></line>
+            <circle cx="18" cy="6" r="3"></circle>
+            <circle cx="6" cy="18" r="3"></circle>
+            <path d="M18 9a9 9 0 0 1-9 9"></path>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1 id="headerTitle">Session Fork Hierarchy</h1>
+          <div class="brand-subtitle" id="headerSubtitle">
+            Loading active conversation lineage…
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar-controls">
+        <input
+          type="search"
+          id="filterInput"
+          class="search-input"
+          placeholder="Filter title, ID, workspace…"
+          aria-label="Filter fork tree nodes"
+        />
+        <select id="projectFilterSelect" class="select-input" title="Filter forest by project" style="display:none;">
+          <option value="">All Projects</option>
+        </select>
+        <button id="btnIncludeZeroFork" class="btn" title="Include standalone sessions with zero forks" style="display:none;">
+          Include Zero-Fork
+        </button>
+        <button id="btnToggleCollapseAll" class="btn" title="Expand or collapse all trees in the forest" style="display:none;">
+          Collapse All
+        </button>
+        <button id="btnAutoRefresh" class="btn btn-active" title="Toggle 5s live polling">
+          Auto
+        </button>
+        <button id="btnRefresh" class="btn btn-primary" title="Refresh fork hierarchy now">
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- Summary Metrics Strip -->
+    <section class="metrics-strip" id="metricsStrip">
+      <div class="metric-card">
+        <span class="metric-label" id="metricLabel1">Branches in Tree</span>
+        <div class="metric-value" id="metricBranches">—</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label" id="metricLabel2">Max Fork Depth</span>
+        <div class="metric-value" id="metricDepth">—</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label" id="metricLabel3">Current Session Split</span>
+        <div class="metric-value" id="metricSplit">—</div>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label" id="metricLabel4">Fork Points</span>
+        <div class="metric-value" id="metricForkPoints">—</div>
+      </div>
+    </section>
+
+    <!-- Active Lineage Path Breadcrumb (Per-Session AuxPane Only) -->
+    <nav class="lineage-bar" id="lineageBar" aria-label="Active session ancestor path">
+      <span class="lineage-bar-label">Lineage Path:</span>
+      <div id="lineageCrumbs" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;"></div>
+    </nav>
+
+    <!-- Main Content Workspace (Single-column in AuxPane, Two-column Master-Detail in Global Forest View) -->
+    <div id="workspaceContainer" class="workspace-container">
+      <!-- Global Session Fork Forest Panel (Sidebar Entrypoint Only) -->
+      <section class="panel" id="forestSection" style="display:none;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>Session Fork Forest</span>
+            <span class="badge badge-ref-type" id="forestCountBadge">0 trees</span>
+          </div>
+          <span style="font-size:11px;color:var(--muted-foreground);">
+            Side questions hidden • Click any branch to compare split point
+          </span>
+        </div>
+        <div class="panel-body">
+          <div id="forestContainer" class="forest-container">
+            <div class="empty-state">Loading session fork forest…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Per-Session Fork Hierarchy Tree Panel (AuxPane Entrypoint Only) -->
+      <section class="panel" id="singleTreeSection">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>Session Fork Hierarchy Tree</span>
+            <span class="badge badge-ref-type" id="treeCountBadge">0 sessions</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <button id="btnFilterUserForks" class="btn btn-xs btn-active" title="Show only user session forks (hide side questions and subagents)">
+              User Forks Only
+            </button>
+            <button id="btnExpandAll" class="btn btn-xs" title="Show all branches including side questions and subagents">
+              Show All Branches
+            </button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="treeContainer" class="tree-container">
+            <div class="empty-state">Loading session fork hierarchy…</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fork Point & Divergence Diff Preview Panel -->
+      <section class="panel" id="divergencePanel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>Fork Point &amp; Divergence Diff Preview</span>
+            <span class="badge badge-fork-step" id="diffStepBadge">@ step —</span>
+          </div>
+          <div id="diffHeaderActions" style="display:flex;align-items:center;gap:6px;"></div>
+        </div>
+        <div class="panel-body" id="divergenceBody">
+          <div class="empty-state">
+            Select any forked session or parent node to inspect its branch point and post-fork divergence.
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toastBanner" class="toast-banner" role="status" aria-live="polite"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "fork_tree": {
+      "command": "node",
+      "args": [
+        "${PLUGIN_ROOT}/mcp/server.mjs"
+      ],
+      "tools": {
+        "fork_tree_get": {
+          "eager": true
+        },
+        "fork_divergence_diff": {
+          "eager": true
+        },
+        "fork_branch_inspect": {
+          "eager": true
+        }
+      }
+    }
+  }
+}
