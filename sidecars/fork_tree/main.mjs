@@ -22,6 +22,13 @@ const STATIC_FILES = {
   '/app.js': { file: 'app.js', contentType: 'application/javascript; charset=utf-8' },
 };
 
+const cachedStaticFiles = new Map(
+  Object.entries(STATIC_FILES).map(([route, { file, contentType }]) => [
+    route,
+    { content: fs.readFileSync(path.join(__dirname, file)), contentType },
+  ])
+);
+
 function sendJson(res, statusCode, data) {
   const payload = JSON.stringify(data);
   res.writeHead(statusCode, {
@@ -65,10 +72,8 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    if (req.method === 'GET' && STATIC_FILES[pathname]) {
-      const { file, contentType } = STATIC_FILES[pathname];
-      const filePath = path.join(__dirname, file);
-      const content = fs.readFileSync(filePath);
+    if (req.method === 'GET' && cachedStaticFiles.has(pathname)) {
+      const { content, contentType } = cachedStaticFiles.get(pathname);
       res.writeHead(200, {
         'Content-Type': contentType,
         'Cache-Control': 'no-store',
@@ -192,24 +197,6 @@ const server = http.createServer(async (req, res) => {
     });
   }
 });
-
-// Watch backend files so SidecarManager automatically respawns on code updates
-const watchedFiles = [
-  __filename,
-  path.resolve(__dirname, '../../lib/fork_lineage.mjs'),
-];
-for (const file of watchedFiles) {
-  try {
-    fs.watchFile(file, { interval: 1500 }, (curr, prev) => {
-      if (curr.mtimeMs !== prev.mtimeMs) {
-        console.log(`[session-fork-tree] Detected change in ${path.basename(file)}, exiting for reload.`);
-        process.exit(0);
-      }
-    });
-  } catch {
-    // Ignore watch errors
-  }
-}
 
 server.listen(PORT, '127.0.0.1', () => {
   const addr = server.address();

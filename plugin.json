@@ -2,7 +2,7 @@
   "name": "session-fork-tree",
   "displayName": "Session Fork Tree",
   "description": "Interactive chat session fork hierarchy visualizer, fork point and divergence diff inspector, one-click session switcher, and MCP lineage tools.",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "logo": "assets/logo.svg",
   "suggestedPrompts": [
     "Show the session fork hierarchy tree for this conversation",
